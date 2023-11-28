@@ -1,33 +1,44 @@
 # flake8: noqa
-from langchain_core.prompts import PromptTemplate
-
-SONG_DATA_SOURCE = """\
+from langchain.prompts import PromptTemplate
+DECKS_DATA_SOURCE = """\
 ```json
 {{
-    "content": "Lyrics of a song",
+    "content": "Companies information and presentation",
     "attributes": {{
-        "artist": {{
+        "account_name": {{
             "type": "string",
-            "description": "Name of the song artist"
+            "description":"The name of the company. Example : The company Solgate, the name is Solgate."
         }},
-        "length": {{
+        "opportunity_year": {{
             "type": "integer",
-            "description": "Length of the song in seconds"
+            "description": "The year of the company presentation"
         }},
-        "genre": {{
+        "account_id": {{
             "type": "string",
-            "description": "The song genre, one of \"pop\", \"rock\" or \"rap\""
+            "description": "The id of the company"
+        }},
+        "account_country": {{
+            "type": "string",
+            "description": "The country code iso 2 where the company is settled"
         }}
     }}
 }}
 ```\
 """
-
 FULL_ANSWER = """\
 ```json
 {{
-    "query": "teenager love",
-    "filter": "and(or(eq(\\"artist\\", \\"Taylor Swift\\"), eq(\\"artist\\", \\"Katy Perry\\")), lt(\\"length\\", 180), eq(\\"genre\\", \\"pop\\"))"
+    "query": "",
+    "filter": "and(eq(\\"account_name\\", \\"Solgate\\"), eq(\\"opportunity_year\\", 2023))"
+}}
+```\
+"""
+
+FULL_ANSWER2 = """\
+```json
+{{
+    "query": "",
+    "filter": "eq(\\"account_name\\", \\"Kiro\\")"
 }}
 ```\
 """
@@ -35,7 +46,7 @@ FULL_ANSWER = """\
 NO_FILTER_ANSWER = """\
 ```json
 {{
-    "query": "",
+    "query": "Ferroptosis applied to cancer",
     "filter": "NO_FILTER"
 }}
 ```\
@@ -44,9 +55,8 @@ NO_FILTER_ANSWER = """\
 WITH_LIMIT_ANSWER = """\
 ```json
 {{
-    "query": "love",
-    "filter": "NO_FILTER",
-    "limit": 2
+    "query": "",
+    "filter": "or(eq(\\"account_name\\", \\"NoviPel Holding ApS\\"), eq(\\"account_name\\", \\"Solgate\\"))"
 }}
 ```\
 """
@@ -54,36 +64,48 @@ WITH_LIMIT_ANSWER = """\
 DEFAULT_EXAMPLES = [
     {
         "i": 1,
-        "data_source": SONG_DATA_SOURCE,
-        "user_query": "What are songs by Taylor Swift or Katy Perry about teenage romance under 3 minutes long in the dance pop genre",
+        "data_source": DECKS_DATA_SOURCE,
+        "user_query": "Anything about a company called Solgate, presented in 2023?",
         "structured_request": FULL_ANSWER,
     },
     {
         "i": 2,
-        "data_source": SONG_DATA_SOURCE,
-        "user_query": "What are songs that were not published on Spotify",
+        "data_source": DECKS_DATA_SOURCE,
+        "user_query": "What companies have we seen that look at Ferroptosis as applied to cancer?",
         "structured_request": NO_FILTER_ANSWER,
+    },
+    {
+        "i": 2,
+        "data_source": DECKS_DATA_SOURCE,
+        "user_query": "Tell me about a company called Kiro?",
+        "structured_request": FULL_ANSWER2,
     },
 ]
 
 EXAMPLES_WITH_LIMIT = [
     {
         "i": 1,
-        "data_source": SONG_DATA_SOURCE,
-        "user_query": "What are songs by Taylor Swift or Katy Perry about teenage romance under 3 minutes long in the dance pop genre",
+        "data_source": DECKS_DATA_SOURCE,
+        "user_query": "Anything about a company called Solgate, presented in 2023?",
         "structured_request": FULL_ANSWER,
     },
     {
         "i": 2,
-        "data_source": SONG_DATA_SOURCE,
-        "user_query": "What are songs that were not published on Spotify",
+        "data_source": DECKS_DATA_SOURCE,
+        "user_query": "What companies have we seen that look at Ferroptosis as applied to cancer?",
         "structured_request": NO_FILTER_ANSWER,
     },
     {
         "i": 3,
-        "data_source": SONG_DATA_SOURCE,
-        "user_query": "What are three songs about love",
+        "data_source": DECKS_DATA_SOURCE,
+        "user_query": "Compare the pros and cons of company NoviPel Holding ApS vs. company Solgate",
         "structured_request": WITH_LIMIT_ANSWER,
+    },
+    {
+        "i": 3,
+        "data_source": DECKS_DATA_SOURCE,
+        "user_query": "Tell me about a company called Kiro?",
+        "structured_request": FULL_ANSWER2,
     },
 ]
 
@@ -141,7 +163,7 @@ A logical operation statement takes the form `op(statement1, statement2, ...)`:
 Make sure that you only use the comparators and logical operators listed above and no others.
 Make sure that filters only refer to attributes that exist in the data source.
 Make sure that filters only use the attributed names with its function names if there are functions applied on them.
-Make sure that filters only use format `YYYY-MM-DD` when handling date data typed values.
+Make sure that filters only use format `YYYY-MM-DD` when handling timestamp data typed values.
 Make sure that filters take into account the descriptions of attributes and only make comparisons that are feasible given the type of data being stored.
 Make sure that filters are only used as needed. If there are no filters that should be applied return "NO_FILTER" for the filter value.\
 """
@@ -175,7 +197,7 @@ A logical operation statement takes the form `op(statement1, statement2, ...)`:
 Make sure that you only use the comparators and logical operators listed above and no others.
 Make sure that filters only refer to attributes that exist in the data source.
 Make sure that filters only use the attributed names with its function names if there are functions applied on them.
-Make sure that filters only use format `YYYY-MM-DD` when handling date data typed values.
+Make sure that filters only use format `YYYY-MM-DD` when handling timestamp data typed values.
 Make sure that filters take into account the descriptions of attributes and only make comparisons that are feasible given the type of data being stored.
 Make sure that filters are only used as needed. If there are no filters that should be applied return "NO_FILTER" for the filter value.
 Make sure the `limit` is always an int value. It is an optional parameter so leave it blank if it does not make sense.
